@@ -1,5 +1,5 @@
 # advent-of-code-2021
-## Day 1
+## Solve puzzles
 ```
-go run cmd/day01/main.go
+make run_dayXX
 ```
