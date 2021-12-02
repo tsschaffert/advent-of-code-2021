@@ -21,9 +21,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	increases := countIncreases(measurements)
+	increasesSimple := countIncreases(measurements)
 
-	fmt.Printf("Number of increases:\t%d\n", increases)
+	slidingWindows := generateSlidingWindows(measurements)
+	increasesSlidingWindow := countIncreases(slidingWindows)
+
+	fmt.Printf("Number of increases (noisy):\t%d\n", increasesSimple)
+	fmt.Printf("Number of increases (noise reduced):\t%d\n", increasesSlidingWindow)
 }
 
 func readMeasurements(input io.Reader) ([]int, error) {
@@ -57,3 +61,13 @@ func countIncreases(measurements []int) int {
 	return count
 }
 
+func generateSlidingWindows(measurements []int) []int {
+	var slidingWindows []int
+
+	for index, _ := range measurements[2:] {
+		slidingWindow := measurements[index] + measurements[index + 1] + measurements[index + 2]
+		slidingWindows = append(slidingWindows, slidingWindow)
+	}
+
+	return slidingWindows
+}

@@ -69,19 +69,19 @@ func Test_readMeasurements(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "simple input",
-			args:    args{
+			name: "simple input",
+			args: args{
 				input: strings.NewReader("199\n200\n"),
 			},
-			want: []int{199, 200},
+			want:    []int{199, 200},
 			wantErr: false,
 		},
 		{
-			name:    "not a number",
-			args:    args{
+			name: "not a number",
+			args: args{
 				input: strings.NewReader("hello\nworld\n"),
 			},
-			want: nil,
+			want:    nil,
 			wantErr: true,
 		},
 	}
@@ -96,5 +96,75 @@ func Test_readMeasurements(t *testing.T) {
 				t.Errorf("readMeasurements() got = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func Test_generateSlidingWindows(t *testing.T) {
+	type args struct {
+		measurements []int
+	}
+	tests := []struct {
+		name string
+		args args
+		want []int
+	}{
+		{
+			name: "example from website",
+			args: args{
+				measurements: []int{
+					199,
+					200,
+					208,
+					210,
+					200,
+					207,
+					240,
+					269,
+					260,
+					263,
+				},
+			},
+			want: []int{
+				607,
+				618,
+				618,
+				617,
+				647,
+				716,
+				769,
+				792,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := generateSlidingWindows(tt.args.measurements); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("generateSlidingWindows() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_examplePart2(t *testing.T) {
+	input := []int{
+		199,
+		200,
+		208,
+		210,
+		200,
+		207,
+		240,
+		269,
+		260,
+		263,
+	}
+
+	expectedResult := 5
+
+	slidingWindows := generateSlidingWindows(input)
+	result := countIncreases(slidingWindows)
+
+	if result != expectedResult {
+		t.Errorf("got = %v, want %v", result, expectedResult)
 	}
 }
