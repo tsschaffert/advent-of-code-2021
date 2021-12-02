@@ -150,7 +150,7 @@ func TestPosition_ApplyCommand(t *testing.T) {
 				Horizontal: tt.fields.Horizontal,
 				Depth:      tt.fields.Depth,
 			}
-			if got := p.ApplyCommand(tt.args.command); !reflect.DeepEqual(got, tt.want) {
+			if got := applyCommand(p, tt.args.command); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ApplyCommand() = %v, want %v", got, tt.want)
 			}
 		})
@@ -271,7 +271,7 @@ func TestPosition_ApplyCommandCorrectly(t *testing.T) {
 				Depth:      tt.fields.Depth,
 				Aim:        tt.fields.Aim,
 			}
-			if got := p.ApplyCommandCorrectly(tt.args.command); !reflect.DeepEqual(got, tt.want) {
+			if got := applyCommandCorrectly(p, tt.args.command); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("ApplyCommandCorrectly() = %v, want %v", got, tt.want)
 			}
 		})

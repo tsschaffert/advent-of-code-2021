@@ -43,38 +43,31 @@ type Position struct {
 	Aim        int
 }
 
-func (p Position) ApplyCommand(command Command) Position {
-	newPosition := Position{
-		Horizontal: p.Horizontal,
-		Depth:      p.Depth,
-	}
-
+func applyCommand(position Position, command Command) Position {
 	switch command.Direction {
 	case Forward:
-		newPosition.Horizontal += command.Distance
+		position.Horizontal += command.Distance
 	case Up:
-		newPosition.Depth -= command.Distance
+		position.Depth -= command.Distance
 	case Down:
-		newPosition.Depth += command.Distance
+		position.Depth += command.Distance
 	}
 
-	return newPosition
+	return position
 }
 
-func (p Position) ApplyCommandCorrectly(command Command) Position {
-	newPosition := p
-
+func applyCommandCorrectly(position Position, command Command) Position {
 	switch command.Direction {
 	case Forward:
-		newPosition.Horizontal += command.Distance
-		newPosition.Depth += newPosition.Aim * command.Distance
+		position.Horizontal += command.Distance
+		position.Depth += position.Aim * command.Distance
 	case Up:
-		newPosition.Aim -= command.Distance
+		position.Aim -= command.Distance
 	case Down:
-		newPosition.Aim += command.Distance
+		position.Aim += command.Distance
 	}
 
-	return newPosition
+	return position
 }
 
 func main() {
@@ -124,7 +117,7 @@ func applyCommands(initialPosition Position, commands []Command) Position {
 	currentPosition := initialPosition
 
 	for _, command := range commands {
-		currentPosition = currentPosition.ApplyCommand(command)
+		currentPosition = applyCommand(currentPosition, command)
 	}
 
 	return currentPosition
