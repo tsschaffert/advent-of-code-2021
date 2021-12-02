@@ -76,9 +76,11 @@ func main() {
 		log.Fatal(err)
 	}
 
-	finalPosition := applyCommands(Position{}, commands)
+	finalPosition := applyCommands(Position{}, commands, applyCommand)
+	correctFinalPosition := applyCommands(Position{}, commands, applyCommandCorrectly)
 
 	fmt.Printf("Final position: Horizontal %d, Depth %d (product=%d)\n", finalPosition.Horizontal, finalPosition.Depth, finalPosition.Horizontal*finalPosition.Depth)
+	fmt.Printf("Correct final position: Horizontal %d, Depth %d (product=%d)\n", correctFinalPosition.Horizontal, correctFinalPosition.Depth, correctFinalPosition.Horizontal*correctFinalPosition.Depth)
 }
 
 func readCommands(input io.Reader) ([]Command, error) {
@@ -113,11 +115,11 @@ func readCommands(input io.Reader) ([]Command, error) {
 	return commands, nil
 }
 
-func applyCommands(initialPosition Position, commands []Command) Position {
+func applyCommands(initialPosition Position, commands []Command, applyFunction func(position Position, command Command) Position) Position {
 	currentPosition := initialPosition
 
 	for _, command := range commands {
-		currentPosition = applyCommand(currentPosition, command)
+		currentPosition = applyFunction(currentPosition, command)
 	}
 
 	return currentPosition
