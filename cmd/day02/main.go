@@ -4,6 +4,8 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"log"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -59,7 +61,14 @@ func (p Position) ApplyCommand(command Command) Position {
 }
 
 func main() {
+	commands, err := readCommands(os.Stdin)
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	finalPosition := applyCommands(Position{0, 0}, commands)
+
+	fmt.Printf("Final position: Horizontal %d, Depth %d (product=%d)\n", finalPosition.Horizontal, finalPosition.Depth, finalPosition.Horizontal*finalPosition.Depth)
 }
 
 func readCommands(input io.Reader) ([]Command, error) {
