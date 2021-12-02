@@ -10,13 +10,7 @@ import (
 )
 
 func main() {
-	file, err := os.Open("assets/day01/input")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer file.Close()
-
-	measurements, err := readMeasurements(file)
+	measurements, err := readMeasurements(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -53,7 +47,7 @@ func readMeasurements(input io.Reader) ([]int, error) {
 func countIncreases(measurements []int) int {
 	count := 0
 	for index, _ := range measurements[1:] {
-		if measurements[index + 1] > measurements[index] {
+		if measurements[index+1] > measurements[index] {
 			count++
 		}
 	}
@@ -65,7 +59,7 @@ func generateSlidingWindows(measurements []int) []int {
 	var slidingWindows []int
 
 	for index, _ := range measurements[2:] {
-		slidingWindow := measurements[index] + measurements[index + 1] + measurements[index + 2]
+		slidingWindow := measurements[index] + measurements[index+1] + measurements[index+2]
 		slidingWindows = append(slidingWindows, slidingWindow)
 	}
 
