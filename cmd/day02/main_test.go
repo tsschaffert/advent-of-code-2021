@@ -170,7 +170,7 @@ func Test_applyCommands(t *testing.T) {
 		{
 			name: "website example",
 			args: args{
-				initialPosition: Position{0, 0},
+				initialPosition: Position{},
 				commands: []Command{
 					{
 						Direction: Forward,
@@ -198,13 +198,81 @@ func Test_applyCommands(t *testing.T) {
 					},
 				},
 			},
-			want: Position{15, 10},
+			want: Position{Horizontal: 15, Depth: 10},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := applyCommands(tt.args.initialPosition, tt.args.commands); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("applyCommands() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestPosition_ApplyCommandCorrectly(t *testing.T) {
+	type fields struct {
+		Horizontal int
+		Depth      int
+		Aim        int
+	}
+	type args struct {
+		command Command
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   Position
+	}{
+		{
+			name: "move up",
+			fields: fields{
+				Horizontal: 0,
+				Depth:      0,
+				Aim:        0,
+			},
+			args: args{
+				Command{
+					Direction: Up,
+					Distance:  1,
+				},
+			},
+			want: Position{
+				Horizontal: 0,
+				Depth:      0,
+				Aim:        -1,
+			},
+		},
+		{
+			name: "move forward with aim",
+			fields: fields{
+				Horizontal: 0,
+				Depth:      0,
+				Aim:        5,
+			},
+			args: args{
+				Command{
+					Direction: Forward,
+					Distance:  2,
+				},
+			},
+			want: Position{
+				Horizontal: 2,
+				Depth:      10,
+				Aim:        5,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := Position{
+				Horizontal: tt.fields.Horizontal,
+				Depth:      tt.fields.Depth,
+				Aim:        tt.fields.Aim,
+			}
+			if got := p.ApplyCommandCorrectly(tt.args.command); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ApplyCommandCorrectly() = %v, want %v", got, tt.want)
 			}
 		})
 	}

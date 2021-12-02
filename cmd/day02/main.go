@@ -40,6 +40,7 @@ type Command struct {
 type Position struct {
 	Horizontal int
 	Depth      int
+	Aim        int
 }
 
 func (p Position) ApplyCommand(command Command) Position {
@@ -60,13 +61,29 @@ func (p Position) ApplyCommand(command Command) Position {
 	return newPosition
 }
 
+func (p Position) ApplyCommandCorrectly(command Command) Position {
+	newPosition := p
+
+	switch command.Direction {
+	case Forward:
+		newPosition.Horizontal += command.Distance
+		newPosition.Depth += newPosition.Aim * command.Distance
+	case Up:
+		newPosition.Aim -= command.Distance
+	case Down:
+		newPosition.Aim += command.Distance
+	}
+
+	return newPosition
+}
+
 func main() {
 	commands, err := readCommands(os.Stdin)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	finalPosition := applyCommands(Position{0, 0}, commands)
+	finalPosition := applyCommands(Position{}, commands)
 
 	fmt.Printf("Final position: Horizontal %d, Depth %d (product=%d)\n", finalPosition.Horizontal, finalPosition.Depth, finalPosition.Horizontal*finalPosition.Depth)
 }
