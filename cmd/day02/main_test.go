@@ -77,3 +77,135 @@ func Test_readCommands(t *testing.T) {
 		})
 	}
 }
+
+func TestPosition_ApplyCommand(t *testing.T) {
+	type fields struct {
+		Horizontal int
+		Depth      int
+	}
+	type args struct {
+		command Command
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		args   args
+		want   Position
+	}{
+		{
+			name: "move up",
+			fields: fields{
+				Horizontal: 0,
+				Depth:      10,
+			},
+			args: args{
+				Command{
+					Direction: Up,
+					Distance:  1,
+				},
+			},
+			want: Position{
+				Horizontal: 0,
+				Depth:      9,
+			},
+		},
+		{
+			name: "move down",
+			fields: fields{
+				Horizontal: 0,
+				Depth:      10,
+			},
+			args: args{
+				Command{
+					Direction: Down,
+					Distance:  1,
+				},
+			},
+			want: Position{
+				Horizontal: 0,
+				Depth:      11,
+			},
+		},
+		{
+			name: "move forward",
+			fields: fields{
+				Horizontal: 0,
+				Depth:      10,
+			},
+			args: args{
+				Command{
+					Direction: Forward,
+					Distance:  1,
+				},
+			},
+			want: Position{
+				Horizontal: 1,
+				Depth:      10,
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := Position{
+				Horizontal: tt.fields.Horizontal,
+				Depth:      tt.fields.Depth,
+			}
+			if got := p.ApplyCommand(tt.args.command); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("ApplyCommand() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_applyCommands(t *testing.T) {
+	type args struct {
+		initialPosition Position
+		commands        []Command
+	}
+	tests := []struct {
+		name string
+		args args
+		want Position
+	}{
+		{
+			name: "website example",
+			args: args{
+				initialPosition: Position{0, 0},
+				commands: []Command{
+					{
+						Direction: Forward,
+						Distance:  5,
+					},
+					{
+						Direction: Down,
+						Distance:  5,
+					},
+					{
+						Direction: Forward,
+						Distance:  8,
+					},
+					{
+						Direction: Up,
+						Distance:  3,
+					},
+					{
+						Direction: Down,
+						Distance:  8,
+					},
+					{
+						Direction: Forward,
+						Distance:  2,
+					},
+				},
+			},
+			want: Position{15, 10},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := applyCommands(tt.args.initialPosition, tt.args.commands); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("applyCommands() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
