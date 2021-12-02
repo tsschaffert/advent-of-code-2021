@@ -1,6 +1,11 @@
 package main
 
-import "testing"
+import (
+	"io"
+	"reflect"
+	"strings"
+	"testing"
+)
 
 func Test_countIncreases(t *testing.T) {
 	type args struct {
@@ -48,6 +53,47 @@ func Test_countIncreases(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := countIncreases(tt.args.measurements); got != tt.want {
 				t.Errorf("countIncreases() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_readMeasurements(t *testing.T) {
+	type args struct {
+		input io.Reader
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []int
+		wantErr bool
+	}{
+		{
+			name:    "simple input",
+			args:    args{
+				input: strings.NewReader("199\n200\n"),
+			},
+			want: []int{199, 200},
+			wantErr: false,
+		},
+		{
+			name:    "not a number",
+			args:    args{
+				input: strings.NewReader("hello\nworld\n"),
+			},
+			want: nil,
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := readMeasurements(tt.args.input)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readMeasurements() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("readMeasurements() got = %v, want %v", got, tt.want)
 			}
 		})
 	}
