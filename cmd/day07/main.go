@@ -18,8 +18,10 @@ func main() {
 	}
 
 	minimumCost := findMinimumCost(positions, calculateCost)
+	correctMinimumCosts := findMinimumCost(positions, calculateCostsCorrectly)
 
 	fmt.Printf("Minimum costs are %d\n", minimumCost)
+	fmt.Printf("Correct minimum costs are %d\n", correctMinimumCosts)
 }
 
 func findMinimumCost(positions []int, calculation func([]int, int) int) int {
@@ -43,6 +45,18 @@ func calculateCost(positions []int, targetPosition int) int {
 
 	for _, position := range positions {
 		cost += int(math.Abs(float64(targetPosition - position)))
+	}
+
+	return cost
+}
+
+func calculateCostsCorrectly(positions []int, targetPosition int) int {
+	cost := 0
+
+	for _, position := range positions {
+		difference := int(math.Abs(float64(targetPosition - position)))
+		// n * (n+1) / 2 is the sum of 1..n
+		cost += (difference * (difference + 1)) / 2
 	}
 
 	return cost

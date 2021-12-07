@@ -191,3 +191,47 @@ func Test_findMinimumCost_part1(t *testing.T) {
 		})
 	}
 }
+
+func Test_calculateCostsCorrectly(t *testing.T) {
+	type args struct {
+		positions      []int
+		targetPosition int
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "simple test",
+			args: args{
+				positions:      []int{1, 2},
+				targetPosition: 1,
+			},
+			want: 1,
+		},
+		{
+			name: "website example",
+			args: args{
+				positions:      []int{16, 1, 2, 0, 4, 2, 7, 1, 2, 14},
+				targetPosition: 2,
+			},
+			want: 206,
+		},
+		{
+			name: "website example 2",
+			args: args{
+				positions:      []int{16, 1, 2, 0, 4, 2, 7, 1, 2, 14},
+				targetPosition: 5,
+			},
+			want: 168,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := calculateCostsCorrectly(tt.args.positions, tt.args.targetPosition); got != tt.want {
+				t.Errorf("calculateCostsCorrectly() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
