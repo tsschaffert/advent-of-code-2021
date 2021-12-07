@@ -15,10 +15,35 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	convertedPopulation := convertToDensePopulation(population)
 
-	endPopulation := simulatePopulation(population, 80)
+	endPopulation := simulateDensePopulation(convertedPopulation, 80)
+	largeEndPopulation := simulateDensePopulation(convertedPopulation, 256)
 
-	fmt.Printf("Population after 80 days: %d\n", len(endPopulation))
+	fmt.Printf("Population after 80 days: %d\n", endPopulation.size())
+	fmt.Printf("Population after 256 days: %d\n", largeEndPopulation.size())
+}
+
+type densePopulation struct {
+	buckets [9]int64
+}
+
+func (p *densePopulation) simulate() {
+	oldBuckets := p.buckets
+
+	for i := 0; i < 8; i++ {
+		p.buckets[i] = oldBuckets[i+1]
+	}
+	p.buckets[8] = oldBuckets[0]
+	p.buckets[6] += oldBuckets[0]
+}
+
+func (p densePopulation) size() int64 {
+	var size int64
+	for _, count := range p.buckets {
+		size += count
+	}
+	return size
 }
 
 type lanternfish struct {
@@ -41,6 +66,7 @@ func newLanternfish() lanternfish {
 }
 
 func simulatePopulationStep(population []lanternfish) []lanternfish {
+	// TODO Remove side-effects introduced by this and access by index in the loop
 	newPopulation := population
 
 	for index, fish := range population {
@@ -60,6 +86,13 @@ func simulatePopulation(population []lanternfish, steps int) []lanternfish {
 		newPopulation = simulatePopulationStep(newPopulation)
 	}
 	return newPopulation
+}
+
+func simulateDensePopulation(population densePopulation, steps int) densePopulation {
+	for i := 0; i < steps; i++ {
+		population.simulate()
+	}
+	return population
 }
 
 func readPopulation(input io.Reader) ([]lanternfish, error) {
@@ -83,4 +116,14 @@ func readPopulation(input io.Reader) ([]lanternfish, error) {
 	}
 
 	return population, nil
+}
+
+func convertToDensePopulation(population []lanternfish) densePopulation {
+	var result densePopulation
+
+	for _, fish := range population {
+		result.buckets[fish.timer]++
+	}
+
+	return result
 }

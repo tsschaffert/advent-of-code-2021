@@ -169,3 +169,185 @@ func Test_simulatePopulation(t *testing.T) {
 		})
 	}
 }
+
+func Test_population_simulate(t *testing.T) {
+	p := densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}}
+	expectedPopulation := densePopulation{buckets: [9]int64{1, 1, 2, 1, 0, 0, 0, 0, 0}}
+
+	p.simulate()
+
+	if p != expectedPopulation {
+		t.Errorf("lanternfish.simulate() got = %v, want %v", p, expectedPopulation)
+	}
+}
+
+func Test_population_simulate_overflow(t *testing.T) {
+	p := densePopulation{buckets: [9]int64{1, 1, 2, 1, 0, 0, 0, 0, 0}}
+	expectedPopulation := densePopulation{buckets: [9]int64{1, 2, 1, 0, 0, 0, 1, 0, 1}}
+
+	p.simulate()
+
+	if p != expectedPopulation {
+		t.Errorf("lanternfish.simulate() got = %v, want %v", p, expectedPopulation)
+	}
+}
+
+func Test_population_simulate_overflow_with_existing_fish_at_6(t *testing.T) {
+	p := densePopulation{buckets: [9]int64{1, 1, 2, 1, 0, 0, 0, 1, 0}}
+	expectedPopulation := densePopulation{buckets: [9]int64{1, 2, 1, 0, 0, 0, 2, 0, 1}}
+
+	p.simulate()
+
+	if p != expectedPopulation {
+		t.Errorf("lanternfish.simulate() got = %v, want %v", p, expectedPopulation)
+	}
+}
+
+func Test_convertToDensePopulation(t *testing.T) {
+	type args struct {
+		population []lanternfish
+	}
+	tests := []struct {
+		name string
+		args args
+		want densePopulation
+	}{
+		{
+			name: "simple example",
+			args: args{
+				population: []lanternfish{{1}, {2}},
+			},
+			want: densePopulation{buckets: [9]int64{0, 1, 1, 0, 0, 0, 0, 0, 0}},
+		},
+		{
+			name: "simple example",
+			args: args{
+				population: []lanternfish{{3}, {4}, {3}, {1}, {2}},
+			},
+			want: densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := convertToDensePopulation(tt.args.population); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("convertToDensePopulation() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_simulateDensePopulation(t *testing.T) {
+	type args struct {
+		population densePopulation
+		steps      int
+	}
+	tests := []struct {
+		name string
+		args args
+		want densePopulation
+	}{
+		{
+			name: "simple test",
+			args: args{
+				population: densePopulation{buckets: [9]int64{0, 1, 1, 0, 0, 0, 0, 0, 0}},
+				steps:      1,
+			},
+			want: densePopulation{buckets: [9]int64{1, 1, 0, 0, 0, 0, 0, 0, 0}},
+		},
+		{
+			name: "website example 2 days",
+			args: args{
+				population: densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}},
+				steps:      2,
+			},
+			want: densePopulation{buckets: [9]int64{1, 2, 1, 0, 0, 0, 1, 0, 1}},
+		},
+		{
+			name: "website example 18 days",
+			args: args{
+				population: densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}},
+				steps:      18,
+			},
+			want: densePopulation{buckets: [9]int64{3, 5, 3, 2, 2, 1, 5, 1, 4}},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := simulateDensePopulation(tt.args.population, tt.args.steps); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("simulateDensePopulation() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_densePopulation_size(t *testing.T) {
+	type fields struct {
+		buckets [9]int64
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   int64
+	}{
+		{
+			name: "simple test",
+			fields: fields{
+				buckets: [9]int64{0, 1, 1, 0, 0, 0, 0, 0, 0},
+			},
+			want: 2,
+		},
+		{
+			name: "website example",
+			fields: fields{
+				buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0},
+			},
+			want: 5,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			p := densePopulation{
+				buckets: tt.fields.buckets,
+			}
+			if got := p.size(); got != tt.want {
+				t.Errorf("size() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_websiteExample_256(t *testing.T) {
+	p := densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}}
+	var expectedPopulationCount int64 = 26984457539
+
+	p = simulateDensePopulation(p, 256)
+	populationCount := p.size()
+
+	if populationCount != expectedPopulationCount {
+		t.Errorf("website example population count after 256 iterations got = %v, want %v", populationCount, expectedPopulationCount)
+	}
+}
+
+func Test_websiteExample_80(t *testing.T) {
+	p := densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}}
+	var expectedPopulationCount int64 = 5934
+
+	p = simulateDensePopulation(p, 80)
+	populationCount := p.size()
+
+	if populationCount != expectedPopulationCount {
+		t.Errorf("website example population count after 80 iterations got = %v, want %v", populationCount, expectedPopulationCount)
+	}
+}
+
+func Test_websiteExample_18(t *testing.T) {
+	p := densePopulation{buckets: [9]int64{0, 1, 1, 2, 1, 0, 0, 0, 0}}
+	var expectedPopulationCount int64 = 26
+
+	p = simulateDensePopulation(p, 18)
+	populationCount := p.size()
+
+	if populationCount != expectedPopulationCount {
+		t.Errorf("website example population count after 18 iterations got = %v, want %v", populationCount, expectedPopulationCount)
+	}
+}
