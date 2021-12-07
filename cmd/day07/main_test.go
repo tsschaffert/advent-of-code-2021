@@ -157,7 +157,7 @@ func Test_calculateCost(t *testing.T) {
 	}
 }
 
-func Test_findMinimumCost(t *testing.T) {
+func Test_findMinimumCost_part1(t *testing.T) {
 	type args struct {
 		positions       []int
 		minimumPosition int
@@ -185,7 +185,7 @@ func Test_findMinimumCost(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := findMinimumCost(tt.args.positions); got != tt.want {
+			if got := findMinimumCost(tt.args.positions, calculateCost); got != tt.want {
 				t.Errorf("findMinimumCost() = %v, want %v", got, tt.want)
 			}
 		})

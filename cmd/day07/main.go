@@ -17,19 +17,19 @@ func main() {
 		log.Fatal(err)
 	}
 
-	minimumCost := findMinimumCost(positions)
+	minimumCost := findMinimumCost(positions, calculateCost)
 
 	fmt.Printf("Minimum costs are %d\n", minimumCost)
 }
 
-func findMinimumCost(positions []int) int {
+func findMinimumCost(positions []int, calculation func([]int, int) int) int {
 	minimumCost := math.MaxInt
 
 	min := getMinimum(positions)
 	max := getMaximum(positions)
 
 	for target := min; target <= max; target++ {
-		cost := calculateCost(positions, target)
+		cost := calculation(positions, target)
 		if cost < minimumCost {
 			minimumCost = cost
 		}
