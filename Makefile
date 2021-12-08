@@ -18,5 +18,9 @@ run_day07:
 	@cat assets/day07/input | go run cmd/day07/main.go
 .PHONY: run_day07
 
+run_day08:
+	@cat assets/day08/input | go run cmd/day08/main.go
+.PHONY: run_day08
+
 test:
 	go test ./...
