@@ -223,3 +223,101 @@ func Test_calculateSumOfRiskLevels(t *testing.T) {
 		})
 	}
 }
+
+func Test_detectBasin(t *testing.T) {
+	type args struct {
+		heightmap Heightmap
+		lowPoint  Point
+	}
+	tests := []struct {
+		name string
+		args args
+		want []Point
+	}{
+		{
+			name: "single point test",
+			args: args{
+				heightmap: Heightmap{
+					[]int{1, 9},
+					[]int{9, 9},
+				},
+				lowPoint: Point{x: 0, y: 0},
+			},
+			want: []Point{{x: 0, y: 0}},
+		},
+		{
+			name: "basic test",
+			args: args{
+				heightmap: Heightmap{
+					[]int{1, 3},
+					[]int{4, 9},
+				},
+				lowPoint: Point{x: 0, y: 0},
+			},
+			// TODO order should not matter
+			want: []Point{
+				{x: 0, y: 0},
+				{x: 1, y: 0},
+				{x: 0, y: 1},
+			},
+		},
+		{
+			name: "website example",
+			args: args{
+				heightmap: Heightmap{
+					[]int{2, 1, 9, 9, 9, 4, 3, 2, 1, 0},
+					[]int{3, 9, 8, 7, 8, 9, 4, 9, 2, 1},
+					[]int{9, 8, 5, 6, 7, 8, 9, 8, 9, 2},
+					[]int{8, 7, 6, 7, 8, 9, 6, 7, 8, 9},
+					[]int{9, 8, 9, 9, 9, 6, 5, 6, 7, 8},
+				},
+				lowPoint: Point{x: 0, y: 1},
+			},
+			// TODO order should not matter
+			want: []Point{
+				{x: 0, y: 1},
+				{x: 0, y: 0},
+				{x: 1, y: 0},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := detectBasin(tt.args.heightmap, tt.args.lowPoint); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("detectBasin() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getProductOfTop3BasinSizes(t *testing.T) {
+	type args struct {
+		heightmap Heightmap
+	}
+	tests := []struct {
+		name string
+		args args
+		want int
+	}{
+		{
+			name: "website example",
+			args: args{
+				heightmap: Heightmap{
+					[]int{2, 1, 9, 9, 9, 4, 3, 2, 1, 0},
+					[]int{3, 9, 8, 7, 8, 9, 4, 9, 2, 1},
+					[]int{9, 8, 5, 6, 7, 8, 9, 8, 9, 2},
+					[]int{8, 7, 6, 7, 8, 9, 6, 7, 8, 9},
+					[]int{9, 8, 9, 9, 9, 6, 5, 6, 7, 8},
+				},
+			},
+			want: 1134,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getProductOfTop3BasinSizes(tt.args.heightmap); got != tt.want {
+				t.Errorf("getProductOfTop3BasinSizes() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

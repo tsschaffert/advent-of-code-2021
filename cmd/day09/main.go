@@ -7,6 +7,7 @@ import (
 	"log"
 	"math"
 	"os"
+	"sort"
 	"strconv"
 )
 
@@ -17,8 +18,10 @@ func main() {
 	}
 
 	sumOfRiskLevels := calculateSumOfRiskLevels(heightmap)
+	productOfTop3BasinSizes := getProductOfTop3BasinSizes(heightmap)
 
 	fmt.Printf("Sum of risk levels of low points: %d\n", sumOfRiskLevels)
+	fmt.Printf("Product of the sizes of the largest 3 basins: %d\n", productOfTop3BasinSizes)
 }
 
 type Heightmap [][]int
@@ -76,6 +79,82 @@ func calculateSumOfRiskLevels(heightmap Heightmap) int {
 	}
 
 	return sum
+}
+
+func detectBasin(heightmap Heightmap, lowPoint Point) []Point {
+	alreadyChecked := make(map[Point]bool)
+	pointsToCheck := []Point{lowPoint}
+
+	for len(pointsToCheck) > 0 {
+		var pointToCheck Point
+		pointToCheck, pointsToCheck = pointsToCheck[0], pointsToCheck[1:]
+		alreadyChecked[pointToCheck] = true
+
+		for i := 1; heightmap.getHeightForLowpoints(pointToCheck.x+i, pointToCheck.y) < 9; i++ {
+			newPoint := Point{x: pointToCheck.x + i, y: pointToCheck.y}
+			if alreadyChecked[newPoint] {
+				continue
+			}
+
+			pointsToCheck = append(pointsToCheck, newPoint)
+		}
+
+		for i := 1; heightmap.getHeightForLowpoints(pointToCheck.x-i, pointToCheck.y) < 9; i++ {
+			newPoint := Point{x: pointToCheck.x - i, y: pointToCheck.y}
+			if alreadyChecked[newPoint] {
+				continue
+			}
+
+			pointsToCheck = append(pointsToCheck, newPoint)
+		}
+
+		for i := 1; heightmap.getHeightForLowpoints(pointToCheck.x, pointToCheck.y+i) < 9; i++ {
+			newPoint := Point{x: pointToCheck.x, y: pointToCheck.y + i}
+			if alreadyChecked[newPoint] {
+				continue
+			}
+
+			pointsToCheck = append(pointsToCheck, newPoint)
+		}
+
+		for i := 1; heightmap.getHeightForLowpoints(pointToCheck.x, pointToCheck.y-i) < 9; i++ {
+			newPoint := Point{x: pointToCheck.x, y: pointToCheck.y - i}
+			if alreadyChecked[newPoint] {
+				continue
+			}
+
+			pointsToCheck = append(pointsToCheck, newPoint)
+		}
+	}
+
+	var points []Point
+	for point, _ := range alreadyChecked {
+		points = append(points, point)
+	}
+
+	return points
+}
+
+func getProductOfTop3BasinSizes(heightmap Heightmap) int {
+	product := 1
+
+	lowPoints := findLowpoints(heightmap)
+
+	var basins [][]Point
+	for _, lowPoint := range lowPoints {
+		basin := detectBasin(heightmap, lowPoint)
+		basins = append(basins, basin)
+	}
+
+	sort.Slice(basins, func(i, j int) bool {
+		return len(basins[i]) > len(basins[j])
+	})
+
+	for i := 0; i < 3; i++ {
+		product *= len(basins[i])
+	}
+
+	return product
 }
 
 func readHeightmap(input io.Reader) (Heightmap, error) {
