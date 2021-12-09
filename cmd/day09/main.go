@@ -82,12 +82,18 @@ func calculateSumOfRiskLevels(heightmap Heightmap) int {
 }
 
 func detectBasin(heightmap Heightmap, lowPoint Point) []Point {
+	var points []Point
+
 	alreadyChecked := make(map[Point]bool)
 	pointsToCheck := []Point{lowPoint}
 
 	for len(pointsToCheck) > 0 {
 		var pointToCheck Point
+
 		pointToCheck, pointsToCheck = pointsToCheck[0], pointsToCheck[1:]
+		if !alreadyChecked[pointToCheck] {
+			points = append(points, pointToCheck)
+		}
 		alreadyChecked[pointToCheck] = true
 
 		for i := 1; heightmap.getHeightForLowpoints(pointToCheck.x+i, pointToCheck.y) < 9; i++ {
@@ -125,11 +131,6 @@ func detectBasin(heightmap Heightmap, lowPoint Point) []Point {
 
 			pointsToCheck = append(pointsToCheck, newPoint)
 		}
-	}
-
-	var points []Point
-	for point, _ := range alreadyChecked {
-		points = append(points, point)
 	}
 
 	return points
